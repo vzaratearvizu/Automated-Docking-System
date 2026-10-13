@@ -41,7 +41,7 @@ while running:
         lever.handle_event(event)
 
     tach.update(lever.throttle_intensity())
-    boat.update(lever.throttle_intensity())
+    boat.update(lever.throttle_intensity(), steering_wheel.steering_intensity())
 
     # Water-blue background
     window_screen.fill((40, 90, 130))

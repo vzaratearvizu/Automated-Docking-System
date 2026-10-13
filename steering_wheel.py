@@ -3,6 +3,8 @@
 import math
 import pygame
 
+TURNS_TO_LOCK = 3
+
 class SteeringWheel:
     def __init__(self, x, y, radius):
         self.x = x
@@ -47,6 +49,12 @@ class SteeringWheel:
             # Helps with tracking the angle so it continues after 360 degrees rather than resetting to 0
             self.angle += delta
             self.last_mouse_angle = new_mouse_angle
+
+    def steering_intensity(self):
+        # -1.0 (full lock left) to 1.0 (full lock right), based on how many
+        # of the TURNS_TO_LOCK rotations the wheel has actually been turned.
+        max_wheel_angle = TURNS_TO_LOCK * 2 * math.pi  # 3 full turns, in radians
+        return max(-1.0, min(1.0, self.angle / max_wheel_angle))
 
     def draw_wheel(self, surface):
         # Draws the wheel
