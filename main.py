@@ -19,6 +19,11 @@ pygame.init()
 
 WINDOW_WIDTH = 1000
 WINDOW_HEIGHT = 800
+EPISODE_TIMEOUT_SECONDS = 60
+# the 60 number has to match the clock.tick(any num)
+EPISODE_TIMEOUT_FRAMES = EPISODE_TIMEOUT_SECONDS * 60
+START_X, START_Y = 500, 500
+episode_frame = 0
 
 window_screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Boat Docking Environment")
@@ -42,6 +47,21 @@ while running:
 
     tach.update(lever.throttle_intensity())
     boat.update(lever.throttle_intensity(), steering_wheel.steering_intensity())
+    episode_frame += 1
+
+    outcome = current_env.check_outcome(boat)
+    timed_out = episode_frame >= EPISODE_TIMEOUT_FRAMES
+
+    if outcome == "MOOOORRRREEEEDDD":
+        print("MOOOORRRREEEEDDD")
+        boat.reset(START_X, START_Y)
+        current_env.reset()
+        episode_frame = 0
+    elif timed_out:
+        print("No finish")
+        boat.reset(START_X, START_Y)
+        current_env.reset()
+        episode_frame = 0
 
     # Water-blue background
     window_screen.fill((40, 90, 130))
