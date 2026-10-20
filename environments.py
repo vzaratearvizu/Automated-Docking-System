@@ -4,6 +4,7 @@
 import math
 import pygame
 
+# Amount of seconds needed to successfully park
 REQUIRED_SECONDS = 6
 # This has got to match the clock.tick(ANY NUM) in main.py
 FPS = 60
@@ -11,19 +12,20 @@ REQUIRED_FRAMES = REQUIRED_SECONDS * FPS
 
 class MooringField:
     def __init__(self):
+        # The point on the screen where the buoy is
         self.buoy_point = (100, 50)
-        # How close the center boat needs to be
+        # How close to the buoy the center of the boat needs to be to register
         self.catch_radius = 70
+        # Tracks how many frames the boat is in the radius
         self.frames_in_zone = 0
 
     def draw_env(self, surface):
         # The buoy itself
         pygame.draw.circle(surface, (220, 60, 60), self.buoy_point, 10)
+        # The radius
         pygame.draw.circle(surface, (220, 60, 60), self.buoy_point, self.catch_radius, width=1)
 
     def check_outcome(self, boat):
-        """Returns 'moored' if the boat's center is within catch_radius of
-        the buoy, regardless of speed or heading. Returns None otherwise."""
         distance_x = boat.x_pos - self.buoy_point[0]
         distance_y = boat.y_pos - self.buoy_point[1]
         distance = math.hypot(distance_x, distance_y)

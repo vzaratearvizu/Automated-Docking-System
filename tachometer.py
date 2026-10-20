@@ -3,8 +3,10 @@
 import math
 import pygame
 
+# About the maximum RPM on one engine boat
 MAX_RPM = 6000
-RPM_RESPONSE = 0.017  # how quickly the needle catches up to the target RPM
+# how quickly the needle catches up to the target RPM
+RPM_RESPONSE = 0.017
 
 class Tachometer:
     def __init__(self, center_x, center_y, radius=70):
@@ -12,21 +14,23 @@ class Tachometer:
         self.center_y = center_y
         self.radius = radius
 
-        self.rpm = 0.0  # current displayed RPM, catches up gradually
+        # current displayed RPM, catches up gradually
+        self.rpm = 0.0
 
         self.font = pygame.font.SysFont(None, 22)
 
-        # Gauge sweeps from -120 degrees to +120 degrees (0 straight up = 0 RPM)
+        # Gauge sweeps from -120 degrees to +120 degrees
         self.min_angle = math.radians(-120)
         self.max_angle = math.radians(120)
 
     def update(self, throttle: float):
-        """throttle: -1.0 to 1.0. RPM responds to magnitude only."""
+        # -1.0 to 1.0. Is determined by how much the throttle is moved by magnitude. So how hard the rpm is both forward and backward
         target_rpm = abs(throttle) * MAX_RPM
         self.rpm += (target_rpm - self.rpm) * RPM_RESPONSE
 
     def _needle_angle(self):
         fraction = self.rpm / MAX_RPM
+        # minimum angle + where it is between the maximum and minimum angle to show where it is
         return self.min_angle + fraction * (self.max_angle - self.min_angle)
 
     def draw(self, surface):

@@ -21,7 +21,7 @@ class ThrottleLever:
         return self.angle / self.max_angle
 
     def _handle_pos(self):
-        # math.sin(whatever) gives the x-coordinate it's in on the circle
+        # math.sin(whatever) gives the x-coordinate it's in the circle
         # Since the the zero angle is north of the circle, sin(0) provides 0 as the coordinate
         handle_x = self.pivot_x + self.length * math.sin(self.angle)
         # math.cos(whatever) gives the y-coordinate it's in on the circle

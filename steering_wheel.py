@@ -3,6 +3,7 @@
 import math
 import pygame
 
+# How many full rotations on the steering wheel before it no longer does anything more
 TURNS_TO_LOCK = 3
 
 class SteeringWheel:
@@ -13,6 +14,8 @@ class SteeringWheel:
         # radians, 0 = straight up
         self.angle = 0.0 
         self.dragging = False
+        # This keeps track of where it the mouse previously was so the next time the steering wheel is grabbed,
+        # it can continue as if we didn't let go of the wheel
         self.last_mouse_angle = 0.0
         self.font = pygame.font.SysFont(None, 28)
 
@@ -27,9 +30,10 @@ class SteeringWheel:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # event.pos give mouse position as (x, y)
             mouse_x, mouse_y = event.pos
-            # hypot (hypotenuse) seeing the distance the mouse was clicked to the radius of the circle.
+            # hypot (hypotenuse) seeing the distance the mouse was clicked to the radius of the steering wheel.
             distance = math.hypot(mouse_x - self.x, mouse_y - self.y)
 
+            # Gives wiggle room so I don't have to be EXACTLY clicking on it everytime
             if distance <= self.radius + 15:
                 self.dragging = True
                 self.last_mouse_angle = self._angle_from_center(mouse_x, mouse_y)
@@ -53,7 +57,7 @@ class SteeringWheel:
     def steering_intensity(self):
         # -1.0 (full lock left) to 1.0 (full lock right), based on how many
         # of the TURNS_TO_LOCK rotations the wheel has actually been turned.
-        max_wheel_angle = TURNS_TO_LOCK * 2 * math.pi  # 3 full turns, in radians
+        max_wheel_angle = TURNS_TO_LOCK * 2 * math.pi  # The TURNS_TO_LOCK number converted to radians
         return max(-1.0, min(1.0, self.angle / max_wheel_angle))
 
     def draw_wheel(self, surface):

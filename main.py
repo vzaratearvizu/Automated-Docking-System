@@ -22,6 +22,7 @@ WINDOW_HEIGHT = 800
 EPISODE_TIMEOUT_SECONDS = 60
 # the 60 number has to match the clock.tick(any num)
 EPISODE_TIMEOUT_FRAMES = EPISODE_TIMEOUT_SECONDS * 60
+# Where the boat will spawn
 START_X, START_Y = 500, 500
 episode_frame = 0
 
@@ -33,7 +34,7 @@ clock = pygame.time.Clock()
 running = True
 
 current_env = environments.mooring_field
-boat = Boat(500, 500,40, 100)
+boat = Boat(START_X, START_Y, 40, 100)
 steering_wheel = SteeringWheel(900, 700, 100)
 tach = Tachometer(500, 700)
 lever = ThrottleLever(700, 700, 100, 50)
