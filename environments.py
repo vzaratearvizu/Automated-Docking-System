@@ -2,6 +2,7 @@
 # Choose which one to use in main.py
 
 import math
+import numpy
 import pygame
 
 # Amount of seconds needed to successfully park
@@ -41,6 +42,39 @@ class MooringField:
 
     def reset(self):
         self.frames_in_zone = 0
+
+    def get_observation(self, boat):
+        distance_x = self.buoy_point[0] - boat.x_pos
+        distance_y = self.buoy_point[1] - boat.y_pos
+        distance = math.hypot(distance_x, distance_y)
+
+        # Negative with distance_y since the positive side actually goes down instead of up like in a standard math grid.
+        # Bearing is the direction of a point from the vessel (boat) to the object
+        # We are measuring the current angle, more accurately creating a reference line by making a line from the center of the vessels distance to the buoy
+        bearing_object_reference = math.atan2(distance_x, -distance_y)
+
+        # Figures out the angle distance between the heading (front) of the boat to the buoy
+        angle_to_target = bearing_object_reference - boat.heading
+        # angle_to_target = 179 - -179 = 358
+        # angle_to_target = (358 + 180) mod 360 - 180
+        # angle_to_target = 538 mod 360 - 180
+        # angle_to_target = 178 remainder - 180 = -2 adjustment
+        angle_to_target = (angle_to_target + math.pi) % (2 * math.pi) - math.pi
+
+        # The boat's heading could be spinning multiple times beyond -+360. So this converts it back between -+180 degrees. 0 is facing upwards.
+        heading_relative_angle = (boat.heading + math.pi) % (2 * math.pi) - math.pi
+
+        # Things we need for making decisions:
+        # x position of the boat
+        # y position of the boat
+        # the relative angle the boat is facing
+        # the angle difference from the boat's heading to the angle where the buoy is
+        # the boats speed
+        # the velocity of the boat's turning
+        # the distance between the boat and buoy
+        return numpy.array(
+            [boat.x_pos, boat.y_pos, heading_relative_angle, angle_to_target, boat.speed, boat.angular_velocity, distance], 
+            dtype=numpy.float32)
 
 # Going ahead and initializing the environments so we can just 
 #     import environments
