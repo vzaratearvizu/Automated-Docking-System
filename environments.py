@@ -4,6 +4,7 @@
 import math
 import numpy
 import pygame
+import random
 
 # Amount of seconds needed to successfully park
 REQUIRED_SECONDS = 6
@@ -14,7 +15,7 @@ REQUIRED_FRAMES = REQUIRED_SECONDS * FPS
 class MooringField:
     def __init__(self):
         # The point on the screen where the buoy is
-        self.buoy_point = (100, 50)
+        self.buoy_point = (random.uniform(50, 940), random.uniform(60, 190))
         # How close to the buoy the center of the boat needs to be to register
         self.catch_radius = 70
         # Tracks how many frames the boat is in the radius
@@ -42,6 +43,7 @@ class MooringField:
 
     def reset(self):
         self.frames_in_zone = 0
+        self.buoy_point = (random.uniform(50, 940), random.uniform(60, 190))
 
     def get_observation(self, boat):
         distance_x = self.buoy_point[0] - boat.x_pos
