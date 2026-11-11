@@ -7,6 +7,7 @@
 
 # python -m pip install pygame-ce
 import pygame
+import random
 
 import environments
 from boat import Boat
@@ -22,8 +23,6 @@ WINDOW_HEIGHT = 800
 EPISODE_TIMEOUT_SECONDS = 60
 # the 60 number has to match the clock.tick(any num)
 EPISODE_TIMEOUT_FRAMES = EPISODE_TIMEOUT_SECONDS * 60
-# Where the boat will spawn
-START_X, START_Y = 500, 500
 episode_frame = 0
 
 window_screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -34,7 +33,7 @@ clock = pygame.time.Clock()
 running = True
 
 current_env = environments.mooring_field
-boat = Boat(START_X, START_Y, 40, 100)
+boat = Boat(random.uniform(50, 950), random.uniform(300, 700), 40, 100)
 steering_wheel = SteeringWheel(900, 700, 100)
 tach = Tachometer(500, 700)
 lever = ThrottleLever(700, 700, 100, 50)
@@ -55,12 +54,12 @@ while running:
 
     if outcome == "MOOOORRRREEEEDDD":
         print("MOOOORRRREEEEDDD")
-        boat.reset(START_X, START_Y)
+        boat.reset(random.uniform(50, 950), random.uniform(300, 700))
         current_env.reset()
         episode_frame = 0
     elif timed_out:
         print("No finish")
-        boat.reset(START_X, START_Y)
+        boat.reset(random.uniform(50, 950), random.uniform(300, 700))
         current_env.reset()
         episode_frame = 0
 
