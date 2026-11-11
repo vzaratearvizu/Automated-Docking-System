@@ -334,7 +334,7 @@ class SACAgent:
     # The batch_size controls how many renadom experiences get pulled from the replay buffer and work together to update the weights.
     # Conventially 256 but can be anything that works best for the network.
     # Whatever batch_size is, is how many random experiences get it pulled from the replay_buffer
-    def update(self, replay_buffer, batch_size=600):
+    def update(self, replay_buffer, batch_size):
         # These states are used in the replay buffer and grabs however many random experiences
         observations, actions, rewards, next_observations, completed = replay_buffer.sample(batch_size)
 
