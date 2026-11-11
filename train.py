@@ -58,16 +58,15 @@ for step in range(1, TOTAL_STEPS + 1):
         episode_count += 1
         print(f"Episode {episode_count} | step {step} | reward {episode_reward:.2f} | outcome {info['outcome']}")
 
-        if episode_reward > best_episode_reward:
+        if episode_reward > best_episode_reward and episode_reward > -10_000:
             best_episode_reward = episode_reward
-            if best_episode_reward > -10000:
-                torch.save({
-                    "actor": agent.actor.state_dict(),
-                    "critic1": agent.critic1.state_dict(),
-                    "critic2": agent.critic2.state_dict(),
-                    "log_alpha": agent.log_alpha,
+            torch.save({
+                "actor": agent.actor.state_dict(),
+                "critic1": agent.critic1.state_dict(),
+                "critic2": agent.critic2.state_dict(),
+                "log_alpha": agent.log_alpha,
                 }, f"sac_checkpoint_best_{episode_reward}.pt")
-                print(f"  New best! Saved sac_checkpoint_best_{episode_reward}.pt")
+            print(f"  New best! Saved sac_checkpoint_best_{episode_reward}.pt")
 
         # info not needed, just good to see what goes there
         observation, info = env.reset()
