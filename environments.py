@@ -67,15 +67,13 @@ class MooringField:
         heading_relative_angle = (boat.heading + math.pi) % (2 * math.pi) - math.pi
 
         # Things we need for making decisions:
-        # x position of the boat
-        # y position of the boat
         # the relative angle the boat is facing
         # the angle difference from the boat's heading to the angle where the buoy is
         # the boats speed
         # the velocity of the boat's turning
         # the distance between the boat and buoy
         return numpy.array(
-            [boat.x_pos, boat.y_pos, heading_relative_angle, angle_to_target, boat.speed, boat.angular_velocity, distance], 
+            [heading_relative_angle, angle_to_target, boat.speed, boat.angular_velocity, distance], 
             dtype=numpy.float32)
 
 # Going ahead and initializing the environments so we can just 
