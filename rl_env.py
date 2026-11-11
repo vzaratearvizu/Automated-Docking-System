@@ -17,7 +17,8 @@ EPISODE_TIME_LIMIT_SECONDS = 60
 # How many frames until the episode ends
 EPISODE_TIME_LIMIT_FRAMES = EPISODE_TIME_LIMIT_SECONDS * FPS
 MAX_SPEED = 3.0
-DOCK_SUCCESS_REWARD = 10000.0
+# Has to be more than just leaving and exiting the radius
+DOCK_SUCCESS_REWARD = 120000
 TIMEOUT_PENALTY = -100.0
 
 class MooringEnv(gym.Env):
@@ -83,13 +84,18 @@ class MooringEnv(gym.Env):
         if outcome == "MOOOORRRREEEEDDD":
             reward = DOCK_SUCCESS_REWARD
             terminated = True
+            outcome = "docked"
         elif timed_out:
             reward = TIMEOUT_PENALTY
             truncated = True
+            outcome = "timeout"
         else:
             distance_ratio = current_distance / self.starting_distance
             reward_multiplier = self.env.zone_progress(self.boat)
-            reward = -distance_ratio + reward_multiplier * 150
+            # 360 frames to be awarded well, 6 seconds at 60 frames. So if it started already in the radius and 
+            # stayed in, the math would be 
+            # increments of 60/360 * 20 is about 35,900
+            reward = -distance_ratio + reward_multiplier * 20
 
         # info dictionary is just needed as a gymnasium signature for providing more info on what's happening
         info = {"outcome": outcome}
