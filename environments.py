@@ -76,6 +76,15 @@ class MooringField:
             [heading_relative_angle, angle_to_target, boat.speed, boat.angular_velocity, distance], 
             dtype=numpy.float32)
 
+    # Makes it so the boat is increasingly rewarded once inside the radius to dock
+    def zone_progress(self, boat):
+        distance_x = boat.x_pos - self.buoy_point[0]
+        distance_y = boat.y_pos - self.buoy_point[1]
+        distance = math.hypot(distance_x, distance_y)
+        if distance <= self.catch_radius:
+            return self.frames_in_zone / REQUIRED_FRAMES
+        return 0.0
+
 # Going ahead and initializing the environments so we can just 
 #     import environments
 #     current_env = environments.whatever
