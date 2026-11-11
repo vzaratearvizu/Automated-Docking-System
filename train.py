@@ -8,13 +8,12 @@ from rl_env import MooringEnv
 from sac_neural_network import SACAgent, ReplayBuffer, OBSERVATION_DIMENSION, ACTION_DIMENSION
 
 # Stores some amount of experiences/steps. Can be any number that may seem fit to work
-# Also, adding an _ is just to see what the number is as it get's larger, makes no difference
-BUFFER_CAPACITY = 500_000
+BUFFER_CAPACITY = 500000
 BATCH_SIZE = 800
 # Pure random actions first, to seed the buffer so it has something to learn from
-WARMUP_STEPS = 2_400
-TOTAL_STEPS = 2_000_000
-CHECKPOINT_EVERY = 250_000
+WARMUP_STEPS = 2400
+TOTAL_STEPS = 2000000
+CHECKPOINT_EVERY = 250000
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {device}")
@@ -58,15 +57,15 @@ for step in range(1, TOTAL_STEPS + 1):
         episode_count += 1
         print(f"Episode {episode_count} | step {step} | reward {episode_reward:.2f} | outcome {info['outcome']}")
 
-        if episode_reward > best_episode_reward and episode_reward > -10_000:
+        if episode_reward > 0:
             best_episode_reward = episode_reward
             torch.save({
                 "actor": agent.actor.state_dict(),
                 "critic1": agent.critic1.state_dict(),
                 "critic2": agent.critic2.state_dict(),
                 "log_alpha": agent.log_alpha,
-                }, f"sac_checkpoint_best_{episode_reward}.pt")
-            print(f"  New best! Saved sac_checkpoint_best_{episode_reward}.pt")
+                }, f"sac_checkpoint_best_{episode_reward:.2f}.pt")
+            print(f"  New best! Saved sac_checkpoint_best_{episode_reward:.2f}.pt")
 
         # info not needed, just good to see what goes there
         observation, info = env.reset()
