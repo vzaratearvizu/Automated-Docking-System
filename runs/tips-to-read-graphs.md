@@ -1,3 +1,5 @@
+python -m tensorboard.main --logdir=runs
+
     episode/reward: Should have a general upward trend.
 
     train/mean_q1 and train/mean_q2: Should be steadily increasing together and with rewards. If rewards declines or plataeus while the mean_q1 keeps increasing, could be overestimate bias.

@@ -6,11 +6,15 @@ import numpy
 import pygame
 import random
 
+from boat import MAX_SPEED
+from boat import MAX_TURN_RATE
+
 # Amount of seconds needed to successfully park
 REQUIRED_SECONDS = 2
 # This has got to match the clock.tick(ANY NUM) in main.py
 FPS = 60
 REQUIRED_FRAMES = REQUIRED_SECONDS * FPS
+MAX_POSSIBLE_DISTANCE = 1200.0
 
 class MooringField:
     def __init__(self):
@@ -66,6 +70,12 @@ class MooringField:
         # The boat's heading could be spinning multiple times beyond -+360. So this converts it back between -+180 degrees. 0 is facing upwards.
         heading_relative_angle = (boat.heading + math.pi) % (2 * math.pi) - math.pi
 
+        normalized_heading = heading_relative_angle / math.pi
+        normalized_angle_to_target = angle_to_target / math.pi
+        normalized_speed = boat.speed / MAX_SPEED
+        normalized_angular_velocity = boat.angular_velocity / MAX_TURN_RATE
+        normalized_distance = distance / MAX_POSSIBLE_DISTANCE
+
         # Things we need for making decisions:
         # the relative angle the boat is facing
         # the angle difference from the boat's heading to the angle where the buoy is
@@ -73,7 +83,7 @@ class MooringField:
         # the velocity of the boat's turning
         # the distance between the boat and buoy
         return numpy.array(
-            [heading_relative_angle, angle_to_target, boat.speed, boat.angular_velocity, distance], 
+            [normalized_heading, normalized_angle_to_target, normalized_speed, normalized_angular_velocity, normalized_distance], 
             dtype=numpy.float32)
 
     # Makes it so the boat is increasingly rewarded once inside the radius to dock

@@ -18,6 +18,9 @@ EPISODE_TIME_LIMIT_SECONDS = 60
 EPISODE_TIME_LIMIT_FRAMES = EPISODE_TIME_LIMIT_SECONDS * FPS
 MAX_SPEED = 3.0
 TIMEOUT_PENALTY = -100.0
+# Shrinks every reward by the same factor so the critics' Q-value targets stay
+# small and stable. Doesn't change which behavior is best, only the size of the numbers.
+REWARD_SCALE = 0.1
 
 class MooringEnv(gym.Env):
     def __init__(self):
@@ -90,12 +93,9 @@ class MooringEnv(gym.Env):
             truncated = True
             outcome = "timeout"
         else:
-            distance_ratio = current_distance / self.starting_distance
+            distance_ratio = min(current_distance / self.starting_distance, 2.0)
             reward_multiplier = self.env.zone_progress(self.boat)
-            # 360 frames to be awarded well, 6 seconds at 60 frames. So if it started already in the radius and 
-            # stayed in, the math would be 
-            # increments of 60/360 * 20 is about 35,900
-            reward = -distance_ratio + reward_multiplier * 25
+            reward = -(distance_ratio ** 2) + reward_multiplier * 25
 
         # info dictionary is just needed as a gymnasium signature for providing more info on what's happening
         info = {"outcome": outcome}
@@ -104,4 +104,4 @@ class MooringEnv(gym.Env):
         # and used in the train.py file. The observation turns into next_observation, reward is added to the episode_reward,
         # terminated becomes done, trauncated determines if env.reset is called, and info is just printed in the per-epsidoee
         # status line.
-        return observation, reward, terminated, truncated, info
+        return observation, reward * REWARD_SCALE, terminated, truncated, info

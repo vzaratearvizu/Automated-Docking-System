@@ -9,7 +9,7 @@ MAX_SPEED = 3.0
 # How quickly actual speed chases target speed (0-1)
 # Smaller = slower to accelerate, more lag
 # Number adjusted based on "feel" to closely resemble a boat
-THROTTLE_RESPONSE = 0.0002
+THROTTLE_RESPONSE = 0.002
 # radians per frame at full wheel lock
 # Number adjusted based on "feel" to closely resemble a boat
 MAX_TURN_RATE = 0.03

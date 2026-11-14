@@ -17,22 +17,23 @@ import torch.optim
 OBSERVATION_DIMENSION = 5
 # Throttle and steering
 ACTION_DIMENSION = 2
-# A log_standard_deviation learned by the AI. Have a min and max to prevent
-# absurdly large numbers that make it unstable.
-# When deciding this, literally look at e^(the min or max number here)
-LOG_STD_MIN = -20
-LOG_STD_MAX = 2
+# A log_standard_deviation learned by the AI. Have a min and max to prevent absurdly large numbers that make it unstable.
+# When deciding this, literally look at e^(the min or max number here). They set the minimum and maximum standard 
+# deviation (spread), not the mean.
+
+LOG_STD_MIN = -2.3
+LOG_STD_MAX = -0.8
 # A percentage that will determine how much the target network's parameters are changed towards the critics current values
 # A low value is preferred to help the critic learn without whiplashing from low to high values, it's 
 # instead a small percentage moving towards the critics value
 # TAU is just a greek letter variable τ
 TAU = 0.005
 # How quickly the learning will occur
-ACTOR_LEARNING_RATE = 0.00001
-CRITIC_LEARNING_RATE = 0.00001
+ACTOR_LEARNING_RATE = 0.0003
+CRITIC_LEARNING_RATE = 0.0003
 # Learning rate for the alpha parameter. Controls how big adjustments for the parameter are.
 # This rate never changes, just the alpha parameter changes.
-ALPHA_LEARNING_RATE = 0.00005
+ALPHA_LEARNING_RATE = 0.0003
 # Gamma is the discount factor, how much it should car about rewards farther in the future.
 # Values closer to 1.0 means care more deeply about the future reward. 0.0 means only care about the next reward
 GAMMA = 0.99
@@ -275,7 +276,7 @@ class SACAgent:
         # tight-knit confident. So in a way we're just choosing the constant for randomness that will
         # be used for the duration of the training. Alpha is what chooses how much to take into consideration
         # the target_entropy and is adjusted throughout trraining.
-        self.target_entropy = -5
+        self.target_entropy = -float(action_dimension)
         # Requiring a gradient here since we'll be updating weights with log_alpha.
         # Also creating a table of zeros that's 1x1 because there's only one alpha being used for
         # the two actions (steering and throttle) together. Make the table bigger if wishing for an alpha
@@ -436,9 +437,8 @@ class SACAgent:
         # getting nudged by alpha_loss too, on top of its own separate actor_loss update. alpha_loss is only meant to train alpha,
         # not the actor, so .detach() blocks that path. We multiply the gap by log_alpha, since log_alpha is the actual parameter
         # being trained here. A negative gap pushes log_alpha down (less random); a positive gap pushes it up (more random). 
-        # .mean() averages this across the whole batch. We then add a negative to this all to minimize loss. So if the inside 
-        # is positive meaning more random, it becomes negative and if the inside is negative meaning less random, it makes it 
-        # positive to become more random.
+        # .mean() averages this across the whole batch. We then add a negative to this all to minimize loss. If the gap is 
+        # negative (too random), the gradient pushes log_alpha down; if positive (too confident), it pushes log_alpha up.”
         alpha_loss = -(self.log_alpha * (log_probabilitys + self.target_entropy).detach()).mean()
 
         # This is to get rid of previous gradients that were calculated. PyTorch doesn't automatically clear them, so without this,

@@ -5,15 +5,15 @@ import numpy
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from rl_env import MooringEnv
+from rl_env import MooringEnv, REWARD_SCALE
 from sac_neural_network import SACAgent, ReplayBuffer, OBSERVATION_DIMENSION, ACTION_DIMENSION
 
 # Stores some amount of experiences/steps. Can be any number that may seem fit to work
 BUFFER_CAPACITY = 250000
-BATCH_SIZE = 10000
+BATCH_SIZE = 256
 # Pure random actions first, to seed the buffer so it has something to learn from
 WARMUP_STEPS = 20000
-TOTAL_STEPS = 2000000
+TOTAL_STEPS = 4000000
 CHECKPOINT_EVERY = 250000
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -30,6 +30,8 @@ replay_buffer = ReplayBuffer(BUFFER_CAPACITY, OBSERVATION_DIMENSION, ACTION_DIME
 observation, info = env.reset()
 episode_reward = 0.0
 episode_count = 0
+dock_count = 0  # near the top, beside episode_count
+
 
 best_episode_reward = float("-inf")
 
@@ -50,30 +52,35 @@ for step in range(1, TOTAL_STEPS + 1):
     replay_buffer.add(observation, action, reward, next_observation, float(done))
 
     observation = next_observation
-    episode_reward += reward
+    episode_reward += reward / REWARD_SCALE
 
     # A smaller ratio (more steps until updating) means slower learning
     # Bigger ratio means early risk of early overfitting, also called primacy bias
-    if step >= WARMUP_STEPS and len(replay_buffer) >= BATCH_SIZE and step % 15 == 0:
+    if step >= WARMUP_STEPS and len(replay_buffer) >= BATCH_SIZE and step % 1 == 0:
         metrics = agent.update(replay_buffer, BATCH_SIZE)
-        for key, value in metrics.items():
-            writer.add_scalar(f"train/{key}", value, step)
+        if step % 1000 == 0:
+            for key, value in metrics.items():
+                writer.add_scalar(f"train/{key}", value, step)
 
     if terminated or truncated:
         episode_count += 1
-        writer.add_scalar("episode/reward", episode_reward, episode_count)
-        print(f"Episode {episode_count} | step {step} | reward {episode_reward:.2f} | outcome {info['outcome']}")
-
-        if episode_reward > 0:
-            if best_episode_reward < episode_reward:
-                best_episode_reward = episode_reward
-                torch.save({
+        if info["outcome"] == "docked":
+                dock_count += 1
+                
+                if episode_reward > best_episode_reward:
+                    best_episode_reward = episode_reward
+                    torch.save({
                     "actor": agent.actor.state_dict(),
                     "critic1": agent.critic1.state_dict(),
                     "critic2": agent.critic2.state_dict(),
                     "log_alpha": agent.log_alpha,
                     }, f"sac_checkpoint_best_{episode_reward:.2f}.pt")
-                print(f"  New best! Saved sac_checkpoint_best_{episode_reward:.2f}.pt")
+                    print(f"  New best! Saved sac_checkpoint_best_{episode_reward:.2f}.pt")
+
+        writer.add_scalar("episode/reward", episode_reward, episode_count)
+        writer.add_scalar("episode/dock_count", dock_count, episode_count)
+        writer.add_scalar("episode/docked", 1.0 if info["outcome"] == "docked" else 0.0, episode_count)
+        print(f"Episode {episode_count} | step {step} | reward {episode_reward:.2f} | outcome {info['outcome']} | docks {dock_count}")
 
         # info not needed, just good to see what goes there
         observation, info = env.reset()
