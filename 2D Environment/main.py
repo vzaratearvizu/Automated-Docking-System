@@ -20,7 +20,7 @@ pygame.init()
 
 WINDOW_WIDTH = 1000
 WINDOW_HEIGHT = 800
-EPISODE_TIMEOUT_SECONDS = 60
+EPISODE_TIMEOUT_SECONDS = 90
 # the 60 number has to match the clock.tick(any num)
 EPISODE_TIMEOUT_FRAMES = EPISODE_TIMEOUT_SECONDS * 60
 episode_frame = 0
@@ -33,7 +33,7 @@ clock = pygame.time.Clock()
 running = True
 
 current_env = environments.mooring_field
-boat = Boat(random.uniform(50, 950), random.uniform(300, 700), 40, 100)
+boat = Boat(random.uniform(300, 870), random.uniform(300, 700), 40, 100) # (300, 870), (300, 700)
 steering_wheel = SteeringWheel(900, 700, 100)
 tach = Tachometer(500, 700)
 lever = ThrottleLever(700, 700, 100, 50)
@@ -52,14 +52,14 @@ while running:
     outcome = current_env.check_outcome(boat)
     timed_out = episode_frame >= EPISODE_TIMEOUT_FRAMES
 
-    if outcome == "MOOOORRRREEEEDDD":
-        print("MOOOORRRREEEEDDD")
-        boat.reset(random.uniform(50, 950), random.uniform(300, 700))
+    if outcome == "docked":
+        print("docked")
+        boat.reset(random.uniform(300, 870), random.uniform(300, 700))
         current_env.reset()
         episode_frame = 0
     elif timed_out:
-        print("No finish")
-        boat.reset(random.uniform(50, 950), random.uniform(300, 700))
+        print("timeout")
+        boat.reset(random.uniform(300, 870), random.uniform(300, 700))
         current_env.reset()
         episode_frame = 0
 

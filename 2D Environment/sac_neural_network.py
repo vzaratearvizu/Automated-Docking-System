@@ -14,7 +14,7 @@ import torch.optim
 
 # From get_observation() in environments.py
 # heading_relative_angle, angle_to_target, boat.speed, boat.angular_velocity, distance
-OBSERVATION_DIMENSION = 5
+OBSERVATION_DIMENSION = 6
 # Throttle and steering
 ACTION_DIMENSION = 2
 # A log_standard_deviation learned by the AI. Have a min and max to prevent absurdly large numbers that make it unstable.

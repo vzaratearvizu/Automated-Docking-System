@@ -74,9 +74,9 @@ class Boat:
         rotated_rect = rotated.get_rect(center=(self.x_pos, self.y_pos))
         surface.blit(rotated, rotated_rect)
 
-    def reset(self, x_pos, y_pos):
+    def reset(self, x_pos, y_pos, heading):
         self.x_pos = x_pos
         self.y_pos = y_pos
-        self.heading = 0.0
+        self.heading = heading
         self.speed = 0.0
         self.angular_velocity = 0.0

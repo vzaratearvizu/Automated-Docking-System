@@ -4,50 +4,39 @@
 import math
 import numpy
 import pygame
-import random
 
 from boat import MAX_SPEED
 from boat import MAX_TURN_RATE
 
-# Amount of seconds needed to successfully park
-REQUIRED_SECONDS = 2
 # This has got to match the clock.tick(ANY NUM) in main.py
 FPS = 60
-REQUIRED_FRAMES = REQUIRED_SECONDS * FPS
 MAX_POSSIBLE_DISTANCE = 1200.0
 
 class MooringField:
     def __init__(self):
         # The point on the screen where the buoy is
-        self.buoy_point = (random.uniform(50, 940), random.uniform(60, 190))
+        self.buoy_point = (500, 80)
         # How close to the buoy the center of the boat needs to be to register
-        self.catch_radius = 140
-        # Tracks how many frames the boat is in the radius
-        self.frames_in_zone = 0
+        self.success_radius = 80
 
     def draw_env(self, surface):
         # The buoy itself
         pygame.draw.circle(surface, (220, 60, 60), self.buoy_point, 10)
         # The radius
-        pygame.draw.circle(surface, (220, 60, 60), self.buoy_point, self.catch_radius, width=1)
+        pygame.draw.circle(surface, (220, 60, 60), self.buoy_point, self.success_radius, width=1)
 
-    def check_outcome(self, boat):
+    def distance_to_buoy(self, boat):
         distance_x = boat.x_pos - self.buoy_point[0]
         distance_y = boat.y_pos - self.buoy_point[1]
-        distance = math.hypot(distance_x, distance_y)
+        return math.hypot(distance_x, distance_y)
 
-        if distance <= self.catch_radius:
-            self.frames_in_zone += 1
-        else:
-            self.frames_in_zone = 0
-
-        if self.frames_in_zone >= REQUIRED_FRAMES:
-            return "MOOOORRRREEEEDDD"
+    def check_outcome(self, boat):
+        if self.distance_to_buoy(boat) <= self.success_radius:
+            return "docked"
         return None
 
     def reset(self):
-        self.frames_in_zone = 0
-        self.buoy_point = (random.uniform(50, 940), random.uniform(60, 190))
+        pass
 
     def get_observation(self, boat):
         distance_x = self.buoy_point[0] - boat.x_pos
@@ -85,15 +74,6 @@ class MooringField:
         return numpy.array(
             [normalized_heading, normalized_angle_to_target, normalized_speed, normalized_angular_velocity, normalized_distance], 
             dtype=numpy.float32)
-
-    # Makes it so the boat is increasingly rewarded once inside the radius to dock
-    def zone_progress(self, boat):
-        distance_x = boat.x_pos - self.buoy_point[0]
-        distance_y = boat.y_pos - self.buoy_point[1]
-        distance = math.hypot(distance_x, distance_y)
-        if distance <= self.catch_radius:
-            return self.frames_in_zone / REQUIRED_FRAMES
-        return 0.0
 
 # Going ahead and initializing the environments so we can just 
 #     import environments
