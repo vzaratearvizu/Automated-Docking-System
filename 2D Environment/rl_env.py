@@ -13,7 +13,7 @@ import environments
 # 60 frames a second
 FPS = 60
 # How many seconds until the episode ends
-EPISODE_TIME_LIMIT_SECONDS = 90
+EPISODE_TIME_LIMIT_SECONDS = 50
 # How many frames until the episode ends
 EPISODE_TIME_LIMIT_FRAMES = EPISODE_TIME_LIMIT_SECONDS * FPS
 TIMEOUT_PENALTY = -5
@@ -51,7 +51,7 @@ class MooringEnv(gym.Env):
     # gymnasium method signature requires so, it's not being used at all.
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
-        self.boat.reset(random.uniform(300, 870), random.uniform(300, 700), random.uniform(-math.pi, math.pi))
+        self.boat.reset(random.uniform(300, 870), random.uniform(300, 700), random.uniform(-math.pi/2, math.pi/2))
         self.env.reset()
         self.steps_elapsed = 0
         self.starting_distance = self.env.distance_to_buoy(self.boat)

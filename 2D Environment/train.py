@@ -13,7 +13,7 @@ from sac_neural_network import SACAgent, ReplayBuffer, OBSERVATION_DIMENSION, AC
 BUFFER_CAPACITY = 250000
 BATCH_SIZE = 256
 # Pure random actions first, to seed the buffer so it has something to learn from
-WARMUP_STEPS = 20000
+WARMUP_STEPS = 30000
 TOTAL_STEPS = 4000000
 CHECKPOINT_EVERY = 250000
 
@@ -32,14 +32,18 @@ observation, info = env.reset()
 episode_reward = 0.0
 episode_count = 0
 dock_count = 0 
-recent_docks = deque(maxlen=20)
+recent_docks = deque(maxlen=50)
 SAVE_RATE_THRESHOLD = 0.70
 best_saved_rate = 0
+HOLD_STEPS = 240
 
 for step in range(1, TOTAL_STEPS + 1):
     if step < WARMUP_STEPS:
-        # Be completely random
-        action = numpy.random.uniform(-1, 1, size=ACTION_DIMENSION).astype(numpy.float32)
+        if step % HOLD_STEPS == 1:
+            # Random action held for HOLD_STEPS frames (~2 seconds) so the slow-responding
+            # boat actually moves during warmup instead of jittering in place
+            warmup_action = numpy.random.uniform(-1, 1, size=ACTION_DIMENSION).astype(numpy.float32)
+        action = warmup_action
     else:
         # The agent will begin to make educated guesses on an appropriate action to make given the observation
         action = agent.select_action(observation)
@@ -84,8 +88,8 @@ for step in range(1, TOTAL_STEPS + 1):
 
         writer.add_scalar("episode/reward", episode_reward, episode_count)
         writer.add_scalar("episode/dock_count", dock_count, episode_count)
-        writer.add_scalar("episode/dock_rate_last_20", dock_rate, episode_count)
-        print(f"Episode {episode_count} | step {step} | reward {episode_reward:.2f} | outcome {info['outcome']} | docks {dock_count} | last 20 {dock_rate:.2f}")
+        writer.add_scalar("episode/dock_rate_last_50", dock_rate, episode_count)
+        print(f"Episode {episode_count} | step {step} | reward {episode_reward:.2f} | outcome {info['outcome']} | docks {dock_count} | last 50 {dock_rate:.2f}")
 
         # info not needed, just good to see what goes there
         observation, info = env.reset()

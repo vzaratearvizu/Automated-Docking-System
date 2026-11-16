@@ -39,7 +39,7 @@ tach = Tachometer(500, 700)
 
 # NEW: speed, evaluate mode, and tally
 speed_multiplier = 40
-evaluate_mode = False
+evaluate_mode = True
 docks, episodes = 0, 0
 
 def update_caption():  # NEW

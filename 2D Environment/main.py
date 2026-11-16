@@ -10,6 +10,7 @@ import pygame
 import random
 
 import environments
+import math
 from boat import Boat
 from steering_wheel import SteeringWheel
 from tachometer import Tachometer
@@ -20,7 +21,7 @@ pygame.init()
 
 WINDOW_WIDTH = 1000
 WINDOW_HEIGHT = 800
-EPISODE_TIMEOUT_SECONDS = 90
+EPISODE_TIMEOUT_SECONDS = 50
 # the 60 number has to match the clock.tick(any num)
 EPISODE_TIMEOUT_FRAMES = EPISODE_TIMEOUT_SECONDS * 60
 episode_frame = 0
@@ -59,7 +60,7 @@ while running:
         episode_frame = 0
     elif timed_out:
         print("timeout")
-        boat.reset(random.uniform(300, 870), random.uniform(300, 700))
+        boat.reset(random.uniform(300, 870), random.uniform(300, 700), random.uniform(-math.pi/2, math.pi/2))
         current_env.reset()
         episode_frame = 0
 
